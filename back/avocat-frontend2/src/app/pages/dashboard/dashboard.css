@@ -1,0 +1,40 @@
+.layout { display: flex; height: 100vh; overflow: hidden; background-color: #f8fafc; }
+.content { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+.page-header h1 { font-size: 32px; font-weight: 800; color: #1e293b; margin: 0; }
+
+/* STATS AVOCAT (GRID) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+.stat-card {
+  border-radius: 20px; padding: 30px; color: white; border: none !important;
+  display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+.stat-card.blue { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+.stat-card.green { background: linear-gradient(135deg, #059669, #10b981); }
+.stat-card.orange { background: linear-gradient(135deg, #ea580c, #f97316); }
+.stat-card mat-icon { font-size: 48px; width: 48px; height: 48px; background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; }
+.stat-info h3 { font-size: 38px; font-weight: 900; margin: 0; }
+.stat-info p { margin: 0; font-weight: 600; opacity: 0.9; text-transform: uppercase; font-size: 12px; }
+
+/* CLIENT AREA */
+.partners-summary-card { background: white; padding: 25px; border-radius: 16px; margin-bottom: 35px; border-left: 6px solid #10b981; }
+.card-title-box { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.avocat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding-bottom: 50px; }
+.lawyer-card { border-radius: 16px; border: none !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; transition: 0.3s; }
+.lawyer-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+.lawyer-card.is-partner { border: 2px solid #22c55e !important; background-color: #f0fdf4; }
+.lawyer-header { display: flex; align-items: center; gap: 15px; padding: 20px; }
+.lawyer-avatar { width: 50px; height: 50px; border-radius: 50%; background: #1e293b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; }
+.lawyer-info h4 { margin: 0; font-size: 17px; }
+.lawyer-info p { margin: 0; color: #64748b; font-size: 13px; }
+.lawyer-actions { padding: 15px 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; }
+.partner-badge { color: #166534; font-weight: 700; display: flex; align-items: center; gap: 5px; font-size: 13px; }
+
+/* LOADER */
+.loader-container { text-align: center; padding: 100px; color: #64748b; }
+.rotating { animation: spin 2s linear infinite; font-size: 40px; width: 40px; height: 40px; }
+@keyframes spin { 100% { transform: rotate(360deg); } }

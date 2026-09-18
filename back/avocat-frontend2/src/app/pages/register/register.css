@@ -1,0 +1,99 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);  padding: 20px;
+}
+
+.register-card {
+  width: 500px;
+  padding: 20px;
+  border-radius: 16px !important;
+ box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important; /* plus léger */
+  background-color: white; /* ✅ important */
+  color: black; /* ✅ texte noir */
+  backdrop-filter: blur(10px);
+}
+
+.register-header {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.logo-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #1565C0;
+}
+
+.register-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: black;
+  margin: 8px 0 4px 0;
+}
+
+.register-header p { color: #666; margin: 0; }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.full-width { width: 100%; }
+
+.register-btn {
+  height: 48px;
+  font-size: 16px;
+  margin-top: 8px;
+   background-color: black; /* bouton noir */
+  color: white; /* texte blanc */
+}
+
+.erreur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f44336;
+  font-size: 14px;
+  padding: 8px;
+  background: #ffebee;
+  border-radius: 8px;
+}
+
+.succes-box {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: #e8f5e9;
+  border-radius: 12px;
+  align-items: flex-start;
+}
+
+.succes-box mat-icon {
+  color: #2E7D32;
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.succes-box strong { color: #2E7D32; }
+.succes-box p { color: #555; margin: 8px 0; }
+
+.login-link {
+  text-align: center;
+  color:black;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.login-link a {
+  color: black; /* ou gris foncé */
+  font-weight: 600;
+  text-decoration: none;
+}

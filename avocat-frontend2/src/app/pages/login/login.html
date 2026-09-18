@@ -1,0 +1,47 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <div class="login-header">
+        <mat-icon class="login-icon">gavel</mat-icon>
+        <h1>Avocat Pro</h1>
+        <p>Plateforme de gestion juridique</p>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="email" placeholder="votre@email.com">
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="motDePasse">
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        @if (erreur) {
+          <div class="erreur">
+            <mat-icon>error</mat-icon>
+            {{ erreur }}
+          </div>
+        }
+
+        <button mat-raised-button color="primary" class="full-width login-btn" (click)="login()">
+          <mat-icon>login</mat-icon>
+          Se connecter
+        </button>
+
+        <div class="register-link">
+          Pas encore de compte ?
+          <a routerLink="/register">S'inscrire</a>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

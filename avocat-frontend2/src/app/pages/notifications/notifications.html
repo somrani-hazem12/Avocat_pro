@@ -1,0 +1,196 @@
+<div class="layout">
+  <app-sidebar />
+  <div class="content">
+
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <mat-icon>notifications_active</mat-icon>
+        </div>
+        <div>
+          <h1>Notifications</h1>
+          <p>{{ getNonLues() }} notification(s) non lue(s)</p>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" (click)="marquerToutLu()">
+        <mat-icon>done_all</mat-icon>
+        Tout marquer lu
+      </button>
+    </div>
+
+    <mat-tab-group>
+
+      <!-- TAB 1 : Notifications -->
+      <mat-tab label="🔔 Notifications">
+        <div class="tab-content">
+          @if (loading) {
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p>Chargement...</p>
+            </div>
+          }
+
+          @if (notifications.length === 0 && !loading) {
+            <div class="empty-state">
+              <mat-icon>notifications_off</mat-icon>
+              <h3>Aucune notification</h3>
+              <p>Vous êtes à jour !</p>
+            </div>
+          }
+
+          <div class="notif-list">
+            @for (notif of notifications; track notif.id) {
+              <div class="notif-card" [class.non-lue]="!notif.lue"
+                   [class]="'notif-' + getNiveauClass(notif.niveau)">
+
+                <div class="notif-icon-wrap" [class]="'icon-' + getNiveauClass(notif.niveau)">
+                  <mat-icon>{{ getIcon(notif.type) }}</mat-icon>
+                </div>
+
+                <div class="notif-body">
+                  <div class="notif-top">
+                    <h4>{{ notif.titre }}</h4>
+                    <span class="notif-date">
+                      {{ notif.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+                    </span>
+                  </div>
+                  <p>{{ notif.message }}</p>
+                  @if (notif.dossierRef) {
+                    <span class="dossier-tag">
+                      <mat-icon>folder</mat-icon>
+                      {{ notif.dossierRef }}
+                    </span>
+                  }
+                  <div class="notif-badge-row">
+                    <span class="niveau-badge" [class]="'badge-' + getNiveauClass(notif.niveau)">
+                      {{ notif.niveau }}
+                    </span>
+                    <span class="type-badge">{{ notif.type }}</span>
+                  </div>
+                </div>
+
+                <div class="notif-actions">
+                  @if (!notif.lue) {
+                    <button mat-icon-button color="primary"
+                            (click)="marquerLue(notif.id)"
+                            title="Marquer comme lue">
+                      <mat-icon>check_circle</mat-icon>
+                    </button>
+                  } @else {
+                    <mat-icon class="lue-icon">check_circle</mat-icon>
+                  }
+                  <button mat-icon-button color="warn"
+                          (click)="supprimer(notif.id)"
+                          title="Supprimer">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 2 : Seuils personnalisables -->
+      <mat-tab label="⚙️ Mes Seuils">
+        <div class="tab-content">
+          <div class="seuils-container">
+
+            <div class="seuil-card">
+              <div class="seuil-header">
+                <mat-icon>hourglass_empty</mat-icon>
+                <div>
+                  <h3>Inactivité du dossier</h3>
+                  <p>Alerte si aucune activité après X jours</p>
+                </div>
+              </div>
+              <div class="seuil-control">
+                <span class="seuil-value">{{ seuils.seuilInactivite }} jours</span>
+                <input type="range" min="1" max="60"
+                       [(ngModel)]="seuils.seuilInactivite"
+                       class="slider inactivite">
+                <div class="slider-labels">
+                  <span>1j</span>
+                  <span>30j</span>
+                  <span>60j</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="seuil-card">
+              <div class="seuil-header">
+                <mat-icon>schedule</mat-icon>
+                <div>
+                  <h3>Deadline proche</h3>
+                  <p>Alerte si deadline dans moins de X jours</p>
+                </div>
+              </div>
+              <div class="seuil-control">
+                <span class="seuil-value">{{ seuils.seuilDeadline }} jours</span>
+                <input type="range" min="1" max="30"
+                       [(ngModel)]="seuils.seuilDeadline"
+                       class="slider deadline">
+                <div class="slider-labels">
+                  <span>1j</span>
+                  <span>15j</span>
+                  <span>30j</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="seuil-card">
+              <div class="seuil-header">
+                <mat-icon>description</mat-icon>
+                <div>
+                  <h3>Documents minimum</h3>
+                  <p>Alerte si moins de X documents</p>
+                </div>
+              </div>
+              <div class="seuil-control">
+                <span class="seuil-value">{{ seuils.seuilDocuments }} docs</span>
+                <input type="range" min="1" max="10"
+                       [(ngModel)]="seuils.seuilDocuments"
+                       class="slider documents">
+                <div class="slider-labels">
+                  <span>1</span>
+                  <span>5</span>
+                  <span>10</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="seuil-card">
+              <div class="seuil-header">
+                <mat-icon>event_busy</mat-icon>
+                <div>
+                  <h3>Ancienneté du dossier</h3>
+                  <p>Alerte si dossier ouvert depuis plus de X jours</p>
+                </div>
+              </div>
+              <div class="seuil-control">
+                <span class="seuil-value">{{ seuils.seuilAnciennete }} jours</span>
+                <input type="range" min="30" max="365"
+                       [(ngModel)]="seuils.seuilAnciennete"
+                       class="slider anciennete">
+                <div class="slider-labels">
+                  <span>30j</span>
+                  <span>180j</span>
+                  <span>365j</span>
+                </div>
+              </div>
+            </div>
+
+            <button mat-raised-button color="primary"
+                    class="save-btn" (click)="saveSeuils()">
+              <mat-icon>save</mat-icon>
+              Sauvegarder mes seuils
+            </button>
+
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>

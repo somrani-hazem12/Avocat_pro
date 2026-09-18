@@ -1,0 +1,56 @@
+<div class="sidebar-container">
+
+  <!-- Brand -->
+  <div class="brand">
+    <mat-icon>gavel</mat-icon>
+    <div class="brand-text">
+      <span>Avocat Pro</span>
+      <small class="role-text">{{ role }}</small>
+    </div>
+  </div>
+
+  <!-- User info -->
+  <div class="user-info">
+    <div class="user-avatar">{{ nom.charAt(0) }}</div>
+    <span class="user-name">{{ nom }}</span>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Navigation -->
+  <mat-nav-list>
+    <a mat-list-item
+       *ngFor="let item of menuItems"
+       [routerLink]="item.route"
+       [class.active]="isActive(item.route)">
+
+      <!-- Icône normale -->
+      @if (!item.badge) {
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+      }
+
+      <!-- Icône avec badge notification -->
+      @if (item.badge) {
+        <span matListItemIcon class="notif-icon-wrap">
+          <mat-icon
+            [matBadge]="notifCount > 0 ? notifCount : null"
+            matBadgeColor="warn"
+            matBadgeSize="small"
+            [matBadgeHidden]="notifCount === 0">
+            {{ item.icon }}
+          </mat-icon>
+        </span>
+      }
+
+      <span matListItemTitle>{{ item.label }}</span>
+
+    </a>
+  </mat-nav-list>
+
+  <div class="sidebar-footer">
+    <button mat-button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon> Déconnexion
+    </button>
+  </div>
+
+</div>

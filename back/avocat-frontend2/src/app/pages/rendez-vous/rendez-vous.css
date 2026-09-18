@@ -1,0 +1,79 @@
+/* Structure de base identique à celle du Dashboard pour la cohérence */
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f4f7f9;
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto; /* Active le défilement vertical ici */
+  display: flex;
+  flex-direction: column;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 25px;
+}
+
+/* Cartes */
+.form-card, .table-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  border: 1px solid #e2e8f0;
+}
+
+.form-card {
+  padding: 25px;
+  border-top: 5px solid #1976d2;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Badges d'état */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge.demande { background: #fff3e0; color: #ef6c00; }
+.badge.confirme { background: #e8f5e9; color: #2e7d32; }
+
+/* Overlay pour fixer la date */
+.fix-date-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.fix-card {
+  width: 450px;
+  padding: 25px;
+  border-radius: 15px;
+  background: white;
+}
+
+/* Espacement en bas de page */
+.content::after {
+  content: "";
+  display: block;
+  height: 50px;
+}

@@ -1,0 +1,61 @@
+.sidebar-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #1565C0;
+  color: white;
+}
+
+.brand {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-text { display: flex; flex-direction: column; }
+.role-text { font-size: 10px; opacity: 0.8; text-transform: uppercase; }
+
+.user-info {
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-avatar {
+  width: 35px;
+  height: 35px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+mat-nav-list { flex: 1; margin-top: 10px; }
+
+.active {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-left: 4px solid white;
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.logout-btn {
+  width: 100%;
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}

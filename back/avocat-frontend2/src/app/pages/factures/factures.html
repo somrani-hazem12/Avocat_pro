@@ -1,0 +1,103 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <div class="header-section">
+      <h1>Gestion de la Facturation</h1>
+      <button mat-raised-button color="primary" *ngIf="role === 'AVOCAT' && !showForm" (click)="showForm = true">
+        <mat-icon>add_chart</mat-icon> NOUVELLE FACTURE
+      </button>
+    </div>
+
+    <!-- FORMULAIRE DE GÉNÉRATION DE FACTURE -->
+    <mat-card class="form-card" *ngIf="showForm">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <mat-icon color="primary">receipt_long</mat-icon>
+        <h3 style="margin:0">Générer de nouveaux honoraires</h3>
+      </div>
+
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Montant Hors Taxe (HT) en DT</mat-label>
+          <input matInput type="number" [(ngModel)]="newFacture.montantHT" placeholder="0.00">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Taux de TVA (%)</mat-label>
+          <input matInput type="number" [(ngModel)]="newFacture.tva">
+        </mat-form-field>
+
+        <!-- SÉLECTION DU CLIENT (FIXÉ) -->
+        <mat-form-field appearance="outline">
+          <mat-label>Assigner au Client</mat-label>
+          <mat-select [(ngModel)]="newFacture.clientId" required>
+            <mat-option *ngFor="let c of mesClients" [value]="c.id">
+              {{c.nom}}
+            </mat-option>
+            <mat-option *ngIf="mesClients.length === 0" disabled>
+              Aucun client trouvé pour ce cabinet.
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button mat-button (click)="showForm = false">ANNULER</button>
+        <button mat-raised-button color="primary" (click)="creerFacture()" [disabled]="!newFacture.clientId || newFacture.montantHT <= 0">
+          GÉNÉRER LA FACTURE
+        </button>
+      </div>
+    </mat-card>
+
+    <!-- TABLEAU DES FACTURES -->
+    <mat-card class="table-card" *ngIf="!showForm">
+      <table mat-table [dataSource]="factures" class="full-width">
+        
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <td mat-cell *matCellDef="let f"> {{f.date | date:'dd/MM/yyyy'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="client">
+          <th mat-header-cell *matHeaderCellDef> Client </th>
+          <td mat-cell *matCellDef="let f"> {{f.client?.nom || 'Client Inconnu'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="montant">
+          <th mat-header-cell *matHeaderCellDef> Total TTC </th>
+          <td mat-cell *matCellDef="let f"> <b>{{f.montantTotal | number:'1.2-2'}} DT</b> </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statut">
+          <th mat-header-cell *matHeaderCellDef> État </th>
+          <td mat-cell *matCellDef="let f"> 
+            <span class="badge" [ngClass]="f.statut?.toLowerCase()">{{f.statut}}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef style="text-align: right;"> Actions </th>
+          <td mat-cell *matCellDef="let f" style="text-align: right;">
+            <!-- Valider Paiement -->
+            <button mat-icon-button color="primary" *ngIf="role === 'AVOCAT' && f.statut === 'EN_ATTENTE'" 
+                    (click)="payer(f.id)" matTooltip="Marquer comme payée">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            
+            <!-- Télécharger PDF -->
+            <button mat-icon-button color="accent" (click)="telechargerFacture(f.id)" matTooltip="Télécharger PDF">
+              <mat-icon>download</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <div *ngIf="factures.length === 0" style="padding: 40px; text-align: center; color: #999;">
+        Aucune facture enregistrée.
+      </div>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,151 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <div class="header-section">
+      <h1>Gestion des Dossiers Juridiques</h1>
+      
+      <div class="header-actions">
+        <!-- Bouton pour annuler le filtre -->
+        <button mat-stroked-button color="warn" *ngIf="isFiltered" (click)="reinitialiserFiltre()" style="margin-right: 10px;">
+          <mat-icon>filter_list_off</mat-icon> VOIR TOUS LES DOSSIERS
+        </button>
+
+        <button mat-raised-button color="primary" *ngIf="role === 'AVOCAT' && !showForm" (click)="showForm = true">
+          <mat-icon>add_box</mat-icon> CRÉER UN DOSSIER
+        </button>
+      </div>
+    </div>
+
+    <!-- Message informatif si la liste est filtrée -->
+    <div class="filter-badge" *ngIf="isFiltered" style="background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 500;">
+      <mat-icon>info</mat-icon> Affichage des dossiers pour le client sélectionné uniquement.
+    </div>
+
+    <!-- FORMULAIRE DE CRÉATION -->
+    <mat-card class="form-card" *ngIf="showForm">
+      <div class="form-header">
+        <mat-icon color="primary">folder_shared</mat-icon>
+        <h3>Ouverture d'un nouveau dossier juridique</h3>
+      </div>
+
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Référence (ex: DOS-2024-001)</mat-label>
+          <input matInput [(ngModel)]="newDossier.reference">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Type d'affaire</mat-label>
+          <input matInput [(ngModel)]="newDossier.type">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Client concerné</mat-label>
+          <mat-select [(ngModel)]="newDossier.clientId" required>
+            <mat-option *ngFor="let c of mesClients" [value]="c.id">
+              {{c.nom}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button mat-button (click)="showForm = false">ANNULER</button>
+        <button mat-raised-button color="primary" (click)="ajouterDossier()" [disabled]="!newDossier.clientId || !newDossier.reference">
+          ENREGISTRER LE DOSSIER
+        </button>
+      </div>
+    </mat-card>
+
+    <!-- TABLEAU DES DOSSIERS -->
+    <mat-card class="table-card" *ngIf="!showForm">
+      <table mat-table [dataSource]="dossiers" class="full-width-table">
+        
+        <!-- Colonne Référence -->
+        <ng-container matColumnDef="reference">
+          <th mat-header-cell *matHeaderCellDef> Réf. Dossier </th>
+          <td mat-cell *matCellDef="let d"> <b>{{d.reference}}</b> </td>
+        </ng-container>
+
+        <!-- NOUVELLE COLONNE : CLIENT -->
+        <ng-container matColumnDef="client">
+          <th mat-header-cell *matHeaderCellDef> Client </th>
+          <td mat-cell *matCellDef="let d"> 
+            <span style="color: #475569; font-weight: 500;">
+              <mat-icon style="font-size: 16px; width: 16px; height: 16px; vertical-align: middle;">person</mat-icon>
+              {{d.client?.nom || 'Inconnu'}}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef> Type d'affaire </th>
+          <td mat-cell *matCellDef="let d"> {{d.type}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statut">
+          <th mat-header-cell *matHeaderCellDef> Statut </th>
+          <td mat-cell *matCellDef="let d"> 
+            <span class="status-pill" [ngClass]="d.statut?.toLowerCase()">{{d.statut}}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date Création </th>
+          <td mat-cell *matCellDef="let d"> {{d.dateCreation | date:'dd/MM/yyyy'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef style="text-align: right;"> Actions </th>
+          <td mat-cell *matCellDef="let d" style="text-align: right;">
+            <button mat-icon-button color="primary" (click)="ouvrirDossier(d)" matTooltip="Gérer les documents">
+              <mat-icon>folder_special</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected-row]="selectedDossier?.id === row.id"></tr>
+      </table>
+
+      <div class="empty-state" *ngIf="dossiers.length === 0">
+        <mat-icon>folder_open</mat-icon>
+        <p>Aucun dossier trouvé pour cette sélection.</p>
+      </div>
+    </mat-card>
+
+    <!-- SECTION PIÈCES JOINTES -->
+    <mat-card class="docs-card" *ngIf="selectedDossier && !showForm" style="margin-top: 25px;">
+      <div class="docs-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin:0"><mat-icon color="primary" style="vertical-align: middle;">attach_file</mat-icon> Documents du dossier : {{selectedDossier.reference}}</h3>
+        <div>
+          <input type="file" (change)="onFileSelected($event)" #fileInput style="display:none">
+          <button mat-flat-button color="accent" (click)="fileInput.click()">
+            <mat-icon>cloud_upload</mat-icon> AJOUTER UN FICHIER
+          </button>
+        </div>
+      </div>
+
+      <mat-divider style="margin: 15px 0;"></mat-divider>
+
+      <mat-list>
+        <mat-list-item *ngFor="let doc of documents">
+          <mat-icon matListItemIcon>description</mat-icon>
+          <div matListItemTitle>{{ doc.nom }}</div>
+          <div matListItemLine>Ajouté par {{ doc.uploaderNom }} le {{ doc.dateUpload | date:'short' }}</div>
+          <div matListItemMeta>
+             <button mat-icon-button color="primary" (click)="consulterDocument(doc)">
+               <mat-icon>visibility</mat-icon>
+             </button>
+          </div>
+        </mat-list-item>
+        <div *ngIf="documents.length === 0" style="padding: 20px; text-align: center; color: #888;">Aucun document.</div>
+      </mat-list>
+      
+      <div style="text-align: right; margin-top: 15px;">
+        <button mat-button (click)="selectedDossier = null">FERMER</button>
+      </div>
+    </mat-card>
+  </div>
+</div>

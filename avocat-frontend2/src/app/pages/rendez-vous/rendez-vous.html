@@ -1,0 +1,105 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    
+    <!-- HEADER -->
+    <div class="calendar-header">
+      <div class="title-section">
+        <h1>Agenda Interactif</h1>
+        <div class="nav-btns">
+          <button mat-icon-button (click)="changerMois(-1)"><mat-icon>chevron_left</mat-icon></button>
+          <span class="month-label">{{ NomMois }}</span>
+          <button mat-icon-button (click)="changerMois(1)"><mat-icon>chevron_right</mat-icon></button>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button mat-raised-button color="primary" *ngIf="role === 'CLIENT'" (click)="showRequestForm = true">
+          <mat-icon>add</mat-icon> NOUVELLE DEMANDE
+        </button>
+        <div class="legend">
+          <span class="badge confirmed">Confirmé</span>
+          <span class="badge pending" *ngIf="role === 'CLIENT'">En attente</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-view">
+      <!-- LE CALENDRIER (70% de la largeur) -->
+      <div class="calendar-container">
+        <div class="grid-weekdays">
+          <div *ngFor="let n of nomsJours">{{ n }}</div>
+        </div>
+        <div class="grid-days">
+          <div class="day-cell" *ngFor="let j of joursDuMois" [class.empty]="!j">
+            <span class="day-num" *ngIf="j">{{ j.getDate() }}</span>
+            
+            <div class="rdv-wrapper" *ngIf="j">
+              <div class="rdv-chip" *ngFor="let r of getRdvsDuJour(j)" [class.confirmed]="r.statut === 'CONFIRME'">
+                <span class="rdv-time">{{ r.dateHeure | date:'HH:mm' }}</span>
+                <span class="rdv-name">{{ role === 'AVOCAT' ? r.client?.nom : 'Maitre ' + r.utilisateur?.nom }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR DES ATTENTES (UNIQUEMENT AVOCAT) -->
+      <div class="waiting-room" *ngIf="role === 'AVOCAT'">
+        <h3><mat-icon>hourglass_empty</mat-icon> Demandes à fixer</h3>
+        <div class="empty-msg" *ngIf="getRdvsEnAttente().length === 0">Aucune demande en attente</div>
+        
+        <mat-card class="waiting-card" *ngFor="let r of getRdvsEnAttente()">
+          <div class="card-info">
+            <strong>{{ r.client?.nom }}</strong>
+            <p>{{ r.motif }}</p>
+          </div>
+          <button mat-flat-button color="accent" (click)="ouvrirFixation(r)">
+            <mat-icon>calendar_today</mat-icon> FIXER
+          </button>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- MODAL FIXATION (AVOCAT) -->
+    <div class="overlay" *ngIf="showFixDateForm">
+      <mat-card class="modal-box">
+        <h3><mat-icon>event_available</mat-icon> Confirmer la date</h3>
+        <p>Planification pour : <b>{{ rdvToFix?.client?.nom }}</b></p>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline"><mat-label>Date</mat-label><input matInput type="date" [(ngModel)]="dateChoisie"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Heure</mat-label><input matInput type="time" [(ngModel)]="heureChoisie"></mat-form-field>
+        </div>
+
+        <div class="modal-actions">
+          <button mat-button (click)="showFixDateForm = false">ANNULER</button>
+          <button mat-raised-button color="primary" (click)="validerFixation()">CONFIRMER LE RDV</button>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- MODAL DEMANDE (CLIENT) -->
+    <div class="overlay" *ngIf="showRequestForm">
+      <mat-card class="modal-box">
+        <h3><mat-icon>add_task</mat-icon> Demander une consultation</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Avocat</mat-label>
+          <mat-select [(ngModel)]="selectedAvocatId">
+            <mat-option *ngFor="let m of mesMaitres" [value]="m.id">Maitre {{ m.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Motif</mat-label>
+          <textarea matInput [(ngModel)]="newRdv.description" rows="3"></textarea>
+        </mat-form-field>
+        <div class="modal-actions">
+          <button mat-button (click)="showRequestForm = false">ANNULER</button>
+          <button mat-raised-button color="primary" (click)="prendreRdv()">ENVOYER</button>
+        </div>
+      </mat-card>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="layout">
+  <app-sidebar />
+  <div class="content">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <mat-icon>security</mat-icon>
+        </div>
+        <div>
+          <h1>Détection des Risques</h1>
+          <p>Analyse intelligente de vos dossiers juridiques</p>
+        </div>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Analyse en cours...</p>
+      </div>
+    }
+
+    @if (dashboard) {
+
+      <!-- Stats globales -->
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-icon">
+            <mat-icon>folder_open</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ dashboard.total }}</h2>
+            <p>Dossiers analysés</p>
+          </div>
+        </div>
+
+        <div class="stat-card faible">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ dashboard.faible }}</h2>
+            <p>Risque faible</p>
+          </div>
+        </div>
+
+        <div class="stat-card moyen">
+          <div class="stat-icon">
+            <mat-icon>warning</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ dashboard.moyen }}</h2>
+            <p>Risque moyen</p>
+          </div>
+        </div>
+
+        <div class="stat-card eleve">
+          <div class="stat-icon">
+            <mat-icon>error</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ dashboard.eleve }}</h2>
+            <p>Risque élevé</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Titre section -->
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>list_alt</mat-icon>
+          Détail par dossier
+        </h2>
+        <span class="section-count">{{ dashboard.total }} dossier(s)</span>
+      </div>
+
+      <!-- Dossiers -->
+      <div class="dossiers-list">
+        @for (dossier of dashboard.details; track dossier.dossierRef) {
+          <div class="dossier-card" [class]="'risk-' + getNiveauClass(dossier.niveauRisque)">
+
+            <!-- En-tête du dossier -->
+            <div class="dossier-header">
+              <div class="dossier-title-group">
+                <div class="dossier-avatar" [class]="'avatar-' + getNiveauClass(dossier.niveauRisque)">
+                  <mat-icon>{{ getIcon(dossier.niveauRisque) }}</mat-icon>
+                </div>
+                <div>
+                  <h3 class="dossier-ref">{{ dossier.dossierRef }}</h3>
+                  <span class="niveau-badge" [class]="'badge-' + getNiveauClass(dossier.niveauRisque)">
+                    Risque {{ dossier.niveauRisque }}
+                  </span>
+                </div>
+              </div>
+              <div class="score-circle" [class]="'score-' + getNiveauClass(dossier.niveauRisque)">
+                <span class="score-number">{{ dossier.score }}</span>
+                <span class="score-label">/100</span>
+              </div>
+            </div>
+
+            <!-- Barre de progression -->
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill"
+                     [style.width.%]="dossier.score"
+                     [class]="'fill-' + getNiveauClass(dossier.niveauRisque)">
+                </div>
+              </div>
+              <span class="progress-text">{{ dossier.score }}%</span>
+            </div>
+
+            <!-- Alertes -->
+            <div class="alertes-section">
+              @if (dossier.alertes.length > 0) {
+                <p class="alertes-titre">
+                  <mat-icon>notifications_active</mat-icon>
+                  {{ dossier.alertes.length }} alerte(s) détectée(s)
+                </p>
+                <div class="alertes-list">
+                  @for (alerte of dossier.alertes; track alerte) {
+                    <div class="alerte-item" [class]="'alerte-' + getNiveauClass(dossier.niveauRisque)">
+                      <mat-icon>chevron_right</mat-icon>
+                      <span>{{ alerte }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="no-alerte">
+                  <mat-icon>verified</mat-icon>
+                  <span>Aucune alerte — Dossier en bonne santé</span>
+                </div>
+              }
+            </div>
+
+          </div>
+        }
+      </div>
+
+    }
+
+  </div>
+</div>

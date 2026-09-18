@@ -1,0 +1,101 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="header-section">
+      <h1>Gestion des Utilisateurs</h1>
+      <p>Interface Administrateur - Statistiques de la plateforme</p>
+    </div>
+
+    <!-- Section des statistiques : 4 CARTES AU LIEU DE 2 -->
+    <div class="stats-row">
+      <div class="stat-card blue">
+        <div class="stat-icon"><mat-icon>people</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">Total inscrits</span>
+          <span class="value">{{stats.total}}</span>
+        </div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-icon"><mat-icon>gavel</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">Avocats</span>
+          <span class="value">{{stats.avocats}}</span>
+        </div>
+      </div>
+
+      <div class="stat-card purple">
+        <div class="stat-icon"><mat-icon>person</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">Clients</span>
+          <span class="value">{{stats.clients}}</span>
+        </div>
+      </div>
+      
+      <div class="stat-card orange">
+        <div class="stat-icon"><mat-icon>hourglass_top</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">En attente</span>
+          <span class="value">{{stats.enAttente}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau des demandes -->
+    <div class="content-card">
+      <div class="card-header">
+        <h2>Inscriptions en attente de validation</h2>
+      </div>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="utilisateursEnAttente" class="full-width">
+          
+          <ng-container matColumnDef="nom">
+            <th mat-header-cell *matHeaderCellDef> Nom </th>
+            <td mat-cell *matCellDef="let user"> <strong>{{user.nom}}</strong> </td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef> Email </th>
+            <td mat-cell *matCellDef="let user"> {{user.email}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef> Rôle </th>
+            <td mat-cell *matCellDef="let user"> 
+              <span class="role-badge" [ngClass]="user.role.toLowerCase()">{{user.role}}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date d'inscription </th>
+            <td mat-cell *matCellDef="let user"> {{user.dateInscription | date:'dd/MM/yyyy HH:mm'}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let user">
+              <button mat-icon-button class="btn-check" (click)="accepterUtilisateur(user.id)" title="Accepter">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button mat-icon-button class="btn-cancel" (click)="refuserUtilisateur(user.id)" title="Refuser">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="colonnesAffichees"></tr>
+          <tr mat-row *matRowDef="let row; columns: colonnesAffichees;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="5" style="text-align: center; padding: 40px; color: #64748b;">
+              <mat-icon style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 10px; opacity: 0.5;">info</mat-icon>
+              <p>Aucune inscription en attente de validation.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

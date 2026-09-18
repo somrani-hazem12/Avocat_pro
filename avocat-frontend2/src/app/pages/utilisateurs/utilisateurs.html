@@ -1,0 +1,120 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="header-section">
+      <h1>Gestion des Utilisateurs</h1>
+      <p>Interface Administrateur - Gérez tous les utilisateurs de la plateforme</p>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-section">
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Rechercher par nom, email ou téléphone..." 
+               [(ngModel)]="searchTerm" (input)="onSearchChange()">
+        <button *ngIf="searchTerm" mat-icon-button (click)="searchTerm = ''; onSearchChange()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cartes statistiques -->
+    <div class="stats-row-mini">
+      <div class="stat-mini blue" (click)="changerFiltre('tous')" [class.active]="filtreActif === 'tous'">
+        <mat-icon>people</mat-icon><div><h3>{{ stats.total }}</h3><p>Total</p></div>
+      </div>
+      <div class="stat-mini green" (click)="changerFiltre('ACTIF')" [class.active]="filtreActif === 'ACTIF'">
+        <mat-icon>check_circle</mat-icon><div><h3>{{ stats.actifs }}</h3><p>Actifs</p></div>
+      </div>
+      <div class="stat-mini orange" (click)="changerFiltre('BLOQUE')" [class.active]="filtreActif === 'BLOQUE'">
+        <mat-icon>block</mat-icon><div><h3>{{ stats.bloques }}</h3><p>Bloqués</p></div>
+      </div>
+      <div class="stat-mini purple" (click)="changerFiltre('AVOCAT')" [class.active]="filtreActif === 'AVOCAT'">
+        <mat-icon>gavel</mat-icon><div><h3>{{ stats.avocats }}</h3><p>Avocats</p></div>
+      </div>
+      <div class="stat-mini pink" (click)="changerFiltre('CLIENT')" [class.active]="filtreActif === 'CLIENT'">
+        <mat-icon>person</mat-icon><div><h3>{{ stats.clients }}</h3><p>Clients</p></div>
+      </div>
+    </div>
+
+    <!-- Grille des utilisateurs -->
+    <div class="users-grid" *ngIf="utilisateursFiltres.length > 0">
+      <div class="user-card" *ngFor="let user of utilisateursFiltres">
+        <div class="user-header" [ngClass]="user.role?.toLowerCase()">
+          <div class="user-avatar"><mat-icon>{{ getIconForRole(user.role) }}</mat-icon></div>
+          <div class="user-status" [ngClass]="user.statut === 'ACTIF' ? 'active' : 'blocked'">
+            <mat-icon>{{ user.statut === 'ACTIF' ? 'check_circle' : 'block' }}</mat-icon>
+             <span>{{ user.statut === 'ACTIF' ? 'ACTIF' : 'BLOQUER' }}</span>
+          </div>
+        </div>
+        <div class="user-body">
+          <h3>{{ user.nom }} {{ user.prenom || '' }}</h3>
+          <div class="user-details">
+            <p><mat-icon>email</mat-icon><span>{{ user.email }}</span></p>
+            <p *ngIf="user.telephone"><mat-icon>phone</mat-icon><span>{{ user.telephone }}</span></p>
+            <p *ngIf="user.adresse"><mat-icon>location_on</mat-icon><span>{{ user.adresse }}</span></p>
+          </div>
+          <div class="user-meta">
+            <span class="role-badge" [ngClass]="user.role?.toLowerCase()">{{ user.role }}</span>
+            <span class="date-badge"><mat-icon>calendar_today</mat-icon>{{ user.dateInscription | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+        <div class="user-footer">
+          <button mat-raised-button color="primary" (click)="voirDetails(user)"><mat-icon>visibility</mat-icon> Détails</button>
+          <button mat-raised-button [color]="user.statut === 'ACTIF' ? 'warn' : 'primary'" (click)="bloquerUtilisateur(user)">
+            <mat-icon>{{ user.statut === 'ACTIF' ? 'block' : 'check_circle' }}</mat-icon>
+            {{ user.statut === 'ACTIF' ? 'Bloquer' : 'Débloquer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="utilisateursFiltres.length === 0" class="empty-state">
+      <mat-icon>people_outline</mat-icon><p>Aucun utilisateur trouvé</p>
+    </div>
+
+    <!-- Inscriptions en attente -->
+    <div class="content-card">
+      <div class="card-header"><h2>📋 Inscriptions en attente de validation</h2></div>
+      <div class="table-container">
+        <table mat-table [dataSource]="utilisateursEnAttente" class="full-width">
+          <ng-container matColumnDef="nom"><th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let user">{{user.nom}} </td></ng-container>
+          <ng-container matColumnDef="email"><th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user">{{user.email}} </td></ng-container>
+          <ng-container matColumnDef="role"><th mat-header-cell *matHeaderCellDef>Rôle</th>
+            <td mat-cell *matCellDef="let user"><span class="role-badge" [ngClass]="user.role?.toLowerCase()">{{user.role}}</span></td></ng-container>
+          <ng-container matColumnDef="date"><th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let user">{{user.dateInscription | date:'dd/MM/yyyy HH:mm'}} </td></ng-container>
+          <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let user">
+              <button mat-icon-button class="btn-check" (click)="accepterUtilisateur(user.id)"><mat-icon>check_circle</mat-icon></button>
+              <button mat-icon-button class="btn-cancel" (click)="refuserUtilisateur(user.id)"><mat-icon>cancel</mat-icon></button>
+            </td></ng-container>
+          <tr mat-header-row *matHeaderRowDef="colonnesAffichees"></tr>
+          <tr mat-row *matRowDef="let row; columns: colonnesAffichees;"></tr>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Détails -->
+<div class="modal" *ngIf="selectedUser">
+  <div class="modal-content">
+    <div class="modal-header" [ngClass]="selectedUser.role?.toLowerCase()">
+      <h3>Détails de l'utilisateur</h3>
+      <button mat-icon-button (click)="selectedUser = null"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-avatar"><mat-icon>{{ getIconForRole(selectedUser.role) }}</mat-icon></div>
+      <div class="detail-row"><strong>Nom :</strong><span>{{ selectedUser.nom }} {{ selectedUser.prenom }}</span></div>
+      <div class="detail-row"><strong>Email :</strong><span>{{ selectedUser.email }}</span></div>
+      <div class="detail-row" *ngIf="selectedUser.telephone"><strong>Téléphone :</strong><span>{{ selectedUser.telephone }}</span></div>
+      <div class="detail-row"><strong>Rôle :</strong><span class="role-badge" [ngClass]="selectedUser.role?.toLowerCase()">{{ selectedUser.role }}</span></div>
+      <div class="detail-row"><strong>Statut :</strong><span class="status-badge" [ngClass]="selectedUser.statut === 'ACTIF' ? 'active' : 'blocked'">{{ selectedUser.statut === 'ACTIF' ? 'Actif' : 'Bloqué' }}</span></div>
+    </div>
+    <div class="modal-actions"><button mat-raised-button (click)="selectedUser = null">Fermer</button></div>
+  </div>
+</div>

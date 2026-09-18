@@ -1,0 +1,32 @@
+<div class="sidebar-container">
+  <div class="brand">
+    <mat-icon>gavel</mat-icon>
+    <div class="brand-text">
+      <span>Avocat Pro</span>
+      <small class="role-text">{{ role }}</small>
+    </div>
+  </div>
+
+  <div class="user-info">
+    <div class="user-avatar">{{ nom.charAt(0) }}</div>
+    <span class="user-name">{{ nom }}</span>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <mat-nav-list>
+    <!-- On boucle sur la liste filtrée menuItems -->
+    <a mat-list-item *ngFor="let item of menuItems" 
+       [routerLink]="item.route" 
+       [class.active]="isActive(item.route)">
+      <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+      <span matListItemTitle>{{ item.label }}</span>
+    </a>
+  </mat-nav-list>
+
+  <div class="sidebar-footer">
+    <button mat-button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon> Déconnexion
+    </button>
+  </div>
+</div>

@@ -1,0 +1,198 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <div class="page-header">
+      <h1>Tableau de bord</h1>
+      <p>Bienvenue {{ role === 'AVOCAT' ? 'Maître' : '' }} {{ nom }}</p>
+    </div>
+
+    <!-- LOADER -->
+    <div *ngIf="loading" class="loader-container">
+      <mat-icon class="rotating">sync</mat-icon>
+      <p>Chargement de vos données...</p>
+    </div>
+
+    <ng-container *ngIf="!loading">
+
+      <!-- ############################################# -->
+      <!-- VUE ADMINISTRATEUR                            -->
+      <!-- ############################################# -->
+      <div class="admin-area" *ngIf="role === 'ADMINISTRATEUR'">
+        <div class="stats-grid">
+          <mat-card class="stat-card blue"><div class="stat-info"><h3>{{ statsAdmin.total }}</h3><p>Total</p></div></mat-card>
+          <mat-card class="stat-card green"><div class="stat-info"><h3>{{ statsAdmin.avocats }}</h3><p>Avocats</p></div></mat-card>
+          <mat-card class="stat-card purple"><div class="stat-info"><h3>{{ statsAdmin.clients }}</h3><p>Clients</p></div></mat-card>
+          <mat-card class="stat-card orange"><div class="stat-info"><h3>{{ statsAdmin.enAttente }}</h3><p>En Attente</p></div></mat-card>
+        </div>
+
+        <div class="header-actions" style="margin-top: 30px; display: flex; justify-content: space-between;">
+          <h2>Gestion des comptes</h2>
+          <button mat-raised-button color="primary" (click)="ouvrirFormAdmin()" *ngIf="!showAdminForm">
+            <mat-icon>person_add</mat-icon> NOUVEAU COMPTE
+          </button>
+        </div>
+
+        <!-- FORMULAIRE ADMIN -->
+        <mat-card class="form-card" *ngIf="showAdminForm" style="margin: 20px 0;">
+          <h3>{{ editModeAdmin ? 'Modifier' : 'Créer' }} l'utilisateur</h3>
+          <div class="form-grid-admin" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <mat-form-field appearance="outline"><mat-label>Nom</mat-label><input matInput [(ngModel)]="adminForm.nom"></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput [(ngModel)]="adminForm.email"></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>Téléphone</mat-label><input matInput [(ngModel)]="adminForm.telephone"></mat-form-field>
+            <mat-form-field appearance="outline"><mat-label>Adresse</mat-label><input matInput [(ngModel)]="adminForm.adresse"></mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Rôle</mat-label>
+              <mat-select [(ngModel)]="adminForm.role">
+                <mat-option value="CLIENT">Client</mat-option>
+                <mat-option value="AVOCAT">Avocat</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" *ngIf="!editModeAdmin"><mat-label>Mot de passe</mat-label><input matInput type="password" [(ngModel)]="adminForm.motDePasse"></mat-form-field>
+          </div>
+          <div style="text-align: right; margin-top: 10px;">
+            <button mat-button (click)="showAdminForm = false">ANNULER</button>
+            <button mat-raised-button color="primary" (click)="enregistrerUserAdmin()">ENREGISTRER</button>
+          </div>
+        </mat-card>
+
+        <!-- TABLEAU ADMIN -->
+        <mat-card class="table-card" *ngIf="!showAdminForm">
+          <table mat-table [dataSource]="allUsers" class="full-width">
+            <ng-container matColumnDef="nom"><th mat-header-cell *matHeaderCellDef> Nom </th><td mat-cell *matCellDef="let u"> <b>{{u.nom}}</b> </td></ng-container>
+            <ng-container matColumnDef="email"><th mat-header-cell *matHeaderCellDef> Email </th><td mat-cell *matCellDef="let u"> {{u.email}} </td></ng-container>
+            <ng-container matColumnDef="coordonnees"><th mat-header-cell *matHeaderCellDef> Coordonnées </th><td mat-cell *matCellDef="let u"> {{u.telephone}} <br> <small>{{u.adresse}}</small> </td></ng-container>
+            <ng-container matColumnDef="role"><th mat-header-cell *matHeaderCellDef> Rôle </th><td mat-cell *matCellDef="let u"> <span class="badge" [ngClass]="u.role.toLowerCase()">{{u.role}}</span> </td></ng-container>
+            <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef> Actions </th><td mat-cell *matCellDef="let u" style="text-align: right;">
+              <button mat-icon-button color="primary" (click)="ouvrirFormAdmin(u)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="supprimerUserAdmin(u.id)"><mat-icon>delete</mat-icon></button>
+            </td></ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsAdmin"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsAdmin;"></tr>
+          </table>
+        </mat-card>
+      </div>
+
+      <!-- ############################################# -->
+      <!-- VUE AVOCAT                                    -->
+      <!-- ############################################# -->
+ <div class="avocat-area" *ngIf="role === 'AVOCAT'">
+
+  <!-- Tes stats grid existantes -->
+  <div class="stats-grid">
+    <mat-card class="stat-card blue">
+      <mat-icon>groups</mat-icon>
+      <div class="stat-info">
+        <h3>{{ statsAvocat.clients }}</h3>
+        <p>Clients Actifs</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card green">
+      <mat-icon>folder</mat-icon>
+      <div class="stat-info">
+        <h3>{{ statsAvocat.dossiers }}</h3>
+        <p>Dossiers gérés</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card orange">
+      <mat-icon>event_note</mat-icon>
+      <div class="stat-info">
+        <h3>{{ statsAvocat.rdvAttente }}</h3>
+        <p>RDV à confirmer</p>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- NOUVEAU : CARTE DE LOCALISATION DES CLIENTS -->
+  <mat-card style="margin: 20px 0; padding: 15px;">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+      <mat-icon color="warn" style="margin-right: 10px;">location_on</mat-icon>
+      <h2 style="margin: 0;">Localisation de vos clients</h2>
+    </div>
+    
+    <!-- L'ID 'map' est crucial pour Leaflet -->
+    <div id="map" style="height: 400px; width: 100%; border-radius: 8px; z-index: 1;"></div>
+  </mat-card>
+
+<mat-card style="margin: 20px 0; padding: 20px;">
+  <h2><mat-icon color="primary">description</mat-icon> Générateur de Documents</h2>
+
+  <mat-form-field appearance="outline" style="width: 100%; max-width: 400px;">
+    <mat-label>Modèle de document</mat-label>
+    <mat-select [(ngModel)]="selectedTemplate" (selectionChange)="onTemplateChange()">
+      <mat-option *ngFor="let t of templatesConfig" [value]="t.id">{{ t.label }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div *ngIf="selectedTemplate" style="margin-top: 20px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      
+      <!-- BOUCLE SUR configChamps : PLUS DE BUG DE FOCUS -->
+      <div *ngFor="let field of configChamps">
+
+        <!-- LISTE DÉROULANTE CLIENTS -->
+        <mat-form-field appearance="outline" style="width: 100%" *ngIf="field.type === 'select_client'">
+          <mat-label>{{ field.label }}</mat-label>
+          <mat-select [(ngModel)]="docFormValues[field.id]">
+            <mat-option *ngFor="let c of listeClients" [value]="c.nom">{{ c.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- CHAMP AVOCAT (READONLY) -->
+        <mat-form-field appearance="outline" style="width: 100%" *ngIf="field.type === 'readonly'">
+          <mat-label>{{ field.label }}</mat-label>
+          <input matInput [(ngModel)]="docFormValues[field.id]" readonly style="color: gray;">
+        </mat-form-field>
+
+        <!-- CHAMPS TEXTE -->
+        <mat-form-field appearance="outline" style="width: 100%" *ngIf="field.type === 'text'">
+          <mat-label>{{ field.label }}</mat-label>
+          <input matInput [(ngModel)]="docFormValues[field.id]">
+        </mat-form-field>
+
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" (click)="genererDocument()" style="width: 100%; margin-top: 20px; height: 50px;">
+      <mat-icon>download</mat-icon> GÉNÉRER LE PDF
+    </button>
+  </div>
+</mat-card>
+
+  <!-- Ton iframe reste en bas -->
+  <div class="iframe-container">
+    <iframe src="http://localhost:3000/" width="100%" height="800px" frameborder="0"></iframe>
+  </div>
+
+</div>
+
+      <!-- ############################################# -->
+      <!-- VUE CLIENT                                    -->
+      <!-- ############################################# -->
+      <div class="client-area" *ngIf="role === 'CLIENT'">
+        <mat-card class="partners-summary-card" *ngIf="mesAvocats.length > 0">
+          <h3><mat-icon color="primary">verified_user</mat-icon> Vos Maîtres partenaires</h3>
+          <mat-chip-set>
+            <mat-chip *ngFor="let a of mesAvocats">Maître {{ a.nom }} <button matChipRemove (click)="retirerAvocat(a.id)"><mat-icon>cancel</mat-icon></button></mat-chip>
+          </mat-chip-set>
+          <button mat-flat-button color="primary" routerLink="/rendez-vous" style="margin-top: 15px;">PRENDRE UN RDV</button>
+        </mat-card>
+
+        <h3>Trouver un avocat</h3>
+        <div class="avocat-grid">
+          <mat-card *ngFor="let a of avocatsDisponibles" class="lawyer-card" [class.is-partner]="estDejaSuivi(a.id)">
+            <div class="lawyer-header">
+              <div class="lawyer-avatar">{{ a.nom[0] }}</div>
+              <div class="lawyer-info"><h4>Maître {{ a.nom }}</h4><p>{{ a.specialite }}</p></div>
+            </div>
+            <div class="lawyer-actions">
+              <button mat-flat-button color="primary" *ngIf="!estDejaSuivi(a.id)" (click)="selectionnerAvocat(a.id)">CHOISIR</button>
+              <div class="partner-badge" *ngIf="estDejaSuivi(a.id)"><mat-icon>check_circle</mat-icon> PARTENAIRE</div>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <div class="register-header">
+        <mat-icon class="logo-icon">gavel</mat-icon>
+        <h1>Avocat Pro</h1>
+        <p>Créer un compte</p>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (succes) {
+        <div class="succes-box">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <div>
+            <strong>Demande envoyée !</strong>
+            <p>{{ succes }}</p>
+            <button mat-raised-button color="primary" (click)="goToLogin()">Aller à la connexion</button>
+          </div>
+        </div>
+      } @else {
+        <form [formGroup]="registerForm" (ngSubmit)="register()" class="form-group">
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Je suis un(e)</mat-label>
+            <mat-select formControlName="role">
+              <mat-option value="CLIENT">Client</mat-option>
+              <mat-option value="AVOCAT">Avocat</mat-option>
+              <mat-option value="ASSISTANT">Assistant juridique</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nom complet</mat-label>
+            <input matInput formControlName="nom" placeholder="Ex: Ahmed Ben Ali">
+            <mat-error *ngIf="registerForm.get('nom')?.hasError('required')">Le nom est obligatoire</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="exemple@mail.com">
+            <mat-error *ngIf="registerForm.get('email')?.invalid">Email invalide</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Mot de passe</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="motDePasse">
+            <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="registerForm.get('motDePasse')?.hasError('minlength')">Minimum 6 caractères</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Téléphone (Tunisie)</mat-label>
+            <input matInput formControlName="telephone" placeholder="Ex: 21678... ou 98..." maxlength="8">
+            <mat-icon matSuffix>phone</mat-icon>
+            <mat-error *ngIf="registerForm.get('telephone')?.hasError('pattern')">Format invalide (8 chiffres commençant par 2,4,5 ou 9)</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Adresse</mat-label>
+            <input matInput formControlName="adresse">
+            <mat-icon matSuffix>location_on</mat-icon>
+          </mat-form-field>
+
+          @if (registerForm.get('role')?.value === 'AVOCAT') {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Spécialité</mat-label>
+              <mat-select formControlName="specialite">
+                <mat-option value="Droit civil">Droit civil</mat-option>
+                <mat-option value="Droit pénal">Droit pénal</mat-option>
+                <mat-option value="Droit du travail">Droit du travail</mat-option>
+                <mat-option value="Droit de la famille">Droit de la famille</mat-option>
+              </mat-select>
+              <mat-error *ngIf="registerForm.get('specialite')?.invalid">La spécialité est requise pour les avocats</mat-error>
+            </mat-form-field>
+          }
+
+          <div *ngIf="erreur" class="erreur-box">
+            <mat-icon>error</mat-icon> {{ erreur }}
+          </div>
+
+          <button mat-raised-button color="primary" type="submit" class="full-width register-btn" [disabled]="loading || registerForm.invalid">
+            <mat-icon *ngIf="!loading">how_to_reg</mat-icon>
+            {{ loading ? 'Traitement...' : "S'inscrire" }}
+          </button>
+
+          <div class="login-link">Déjà un compte ? <a routerLink="/login">Se connecter</a></div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

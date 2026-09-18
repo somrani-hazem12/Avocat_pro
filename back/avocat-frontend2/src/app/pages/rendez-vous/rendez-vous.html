@@ -1,0 +1,112 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <div class="header">
+      <h1>Gestion des Rendez-vous</h1>
+    </div>
+
+    <!-- MODAL DE FIXATION DE DATE (AVOCAT) -->
+    <div class="fix-date-overlay" *ngIf="showFixDateForm">
+      <mat-card class="fix-card">
+        <h3><mat-icon color="primary">schedule</mat-icon> Fixer la date et l'heure</h3>
+        <p>Veuillez choisir le créneau pour ce rendez-vous :</p>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date et Heure</mat-label>
+          <input matInput type="datetime-local" [(ngModel)]="dateChoisie">
+        </mat-form-field>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+          <button mat-button (click)="annulerFixation()">ANNULER</button>
+          <button mat-raised-button color="primary" (click)="validerFixation()" [disabled]="!dateChoisie">
+            VALIDER LE RDV
+          </button>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- FORMULAIRE DE DEMANDE (CLIENT UNIQUEMENT) -->
+    <mat-card class="form-card" *ngIf="role === 'CLIENT'">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <mat-icon color="primary">add_circle</mat-icon>
+        <h3 style="margin:0">Nouvelle demande de consultation</h3>
+      </div>
+      
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Pour quel avocat ?</mat-label>
+          <mat-select [(ngModel)]="selectedAvocatId" required>
+            <mat-option *ngFor="let m of mesMaitres" [value]="m.id">
+              Maître {{ m.nom }} ({{ m.specialite }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Motif de la consultation</mat-label>
+          <textarea matInput [(ngModel)]="newRdv.description" rows="3" placeholder="Décrivez brièvement l'objet de votre demande..."></textarea>
+        </mat-form-field>
+
+        <div style="text-align: right;">
+          <button mat-raised-button color="primary" 
+                  (click)="prendreRdv()" 
+                  [disabled]="!selectedAvocatId || !newRdv.description">
+            ENVOYER LA DEMANDE
+          </button>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- TABLEAU DES RENDEZ-VOUS (TOUS) -->
+    <mat-card class="table-card">
+      <table mat-table [dataSource]="rdvs" class="full-width">
+        
+        <ng-container matColumnDef="motif">
+          <th mat-header-cell *matHeaderCellDef> Objet du rendez-vous </th>
+          <td mat-cell *matCellDef="let r"> 
+            <div style="padding: 10px 0;">
+              <strong>{{ r.motif }}</strong><br>
+              <small *ngIf="role === 'CLIENT'" style="color: #64748b;">Avec Maître {{ r.utilisateur?.nom }}</small>
+              <small *ngIf="role === 'AVOCAT'" style="color: #64748b;">Client: {{ r.client?.nom }}</small>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date & Heure </th>
+          <td mat-cell *matCellDef="let r"> 
+            <span *ngIf="r.dateHeure" style="font-weight: 500;">{{ r.dateHeure | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span *ngIf="!r.dateHeure" style="color: #f59e0b; font-style: italic;">En attente de Maître...</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="etat">
+          <th mat-header-cell *matHeaderCellDef> État </th>
+          <td mat-cell *matCellDef="let r">
+            <span class="badge" [ngClass]="r.statut?.toLowerCase()">{{ r.statut }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef style="text-align: right;"> Actions </th>
+          <td mat-cell *matCellDef="let r" style="text-align: right;">
+            <button mat-flat-button color="primary" 
+                    *ngIf="role === 'AVOCAT' && r.statut === 'DEMANDE'" 
+                    (click)="ouvrirFormDate(r.id)">
+              <mat-icon>calendar_today</mat-icon> FIXER LA DATE
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <div *ngIf="rdvs.length === 0" style="padding: 40px; text-align: center; color: #94a3b8;">
+        <mat-icon style="font-size: 48px; width: 48px; height: 48px; opacity: 0.3;">event_busy</mat-icon>
+        <p>Aucun rendez-vous enregistré.</p>
+      </div>
+    </mat-card>
+  </div>
+</div>
